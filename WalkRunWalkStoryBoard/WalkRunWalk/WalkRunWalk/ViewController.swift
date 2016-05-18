@@ -82,7 +82,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if (walkCycleLengthStepper != nil) {
             walkCycleLengthSeconds = Int(walkCycleLengthStepper!.value);
         }
-        runCycleLengthSeconds = 60;
+        runCycleLengthSeconds = 45;
         if (runCycleLengthStepper != nil) {
             runCycleLengthSeconds = Int(runCycleLengthStepper!.value);
         }
@@ -120,8 +120,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
-        
-
         refreshDisplay();
     }
     

@@ -16,7 +16,9 @@ public class WalkRunWalkLeg {
     var entryType : String  = "";
     var timeSeconds : Int = 0;
     private var distMeter : Double = -1;
-    var locations : [CLLocation]?;
+    
+    var listOfLocationLists : [[CLLocation]!]?;
+    // var locations : [CLLocation]?;
     
     public init(firstLocation : CLLocation? ) {
         
@@ -53,21 +55,43 @@ public class WalkRunWalkLeg {
         return d;
     }
     
+    
     func getDistance() -> Double {
         if (distMeter >= 0) {
             return distMeter;
         }
         
-        if (locations == nil || locations!.count == 1 ) {
-            distMeter = 0;
-            return distMeter;
+        if (listOfLocationLists == nil || listOfLocationLists!.count == 0) {
+            return 0;
+        }
+        
+        
+        
+        var distance : Double = 0;
+        
+        for locations in listOfLocationLists! {
+            distance += getDistanceForLocationsArray(locations);
+        }
+        
+        
+        distMeter = distance;
+        return distMeter;
+        
+    }
+    
+    private func getDistanceForLocationsArray(locations : [CLLocation]) -> Double {
+        
+        var distance : Double = 0;
+        
+        if (locations.count < 2 ) {
+            return distance;
         }
         
         var individualDistance : Double = 0;
         
         var previousLocation : CLLocation? = nil;
         
-        for location in locations! {
+        for location in locations {
             if (previousLocation != nil) {
                 let smalldist = calculateDistance(previousLocation!, point2: location);
                 if (smalldist > 0) {
@@ -78,20 +102,56 @@ public class WalkRunWalkLeg {
             
         }
         
-        distMeter = calculateDistance(locations![0], point2: locations![locations!.count-1])
+        distance = calculateDistance(locations[0], point2: locations[locations.count-1])
         
         // print("DistMeter is " + String(distMeter) + " individualDistance is " + String(individualDistance));
-        if (individualDistance > distMeter) {
-            distMeter = individualDistance;
+        if (individualDistance > distance) {
+            distance = individualDistance;
         }
-        return distMeter;
+        return distance;
     }
     
     func addLocation(location : CLLocation! ) {
-        if (locations == nil) {
-            locations = [CLLocation]();
+        
+        if (listOfLocationLists == nil) {
+            listOfLocationLists = [[CLLocation]!]();
+            
         }
-        locations!.append(location);
+        
+        var currentLocations : [CLLocation]!;
+        if (listOfLocationLists!.count > 0) {
+            currentLocations = listOfLocationLists![listOfLocationLists!.count-1];
+        } else {
+            currentLocations = [CLLocation]();
+            
+        }
+
+        if (currentLocations.count > 0) {
+            // we need to check, if the distance is too far, in this case we will create a new "subleg"
+            
+            let prevLocation : CLLocation = currentLocations[currentLocations!.count-1];
+            let dist = calculateDistance(prevLocation, point2: location);
+            if (dist > 12) {
+                // then we create a new leg ....
+                currentLocations = [CLLocation]();
+                currentLocations!.append(location);
+                listOfLocationLists!.append(currentLocations!);
+                return;
+                
+            } else {
+                currentLocations!.append(location);
+            }
+            
+            
+        } else {
+            currentLocations!.append(location);
+        }
+        
+        if (listOfLocationLists?.count > 0) {
+            listOfLocationLists?.removeLast();
+        }
+        listOfLocationLists?.append(currentLocations!);
+
     }
 
 }

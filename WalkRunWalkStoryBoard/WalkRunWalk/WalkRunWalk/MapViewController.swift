@@ -40,6 +40,13 @@ public class MapViewController : UIViewController, MKMapViewDelegate {
         sumWalkLabel!.text = sumWalkString;
         sumRunLabel!.text = sumRunString;
 
+        
+        var lastAnnotation : MKPointAnnotation? = nil;
+        
+        
+        var boundMapRect : MKMapRect? = nil;
+        var coordinateRegion : MKCoordinateRegion = MKCoordinateRegion();
+        
         if (legs != nil && legs!.count > 0) {
             
             var isFirst : Bool = true;
@@ -47,19 +54,31 @@ public class MapViewController : UIViewController, MKMapViewDelegate {
             for (var index : Int = legs!.count-1; index >= 0; index -= 1 ) {
                 let leg : WalkRunWalkLeg! = legs![index];
         
-                let locations : [CLLocation]? = leg.locations;
-                if (locations != nil && locations!.count > 0) {
+                let listOfLocations : [[CLLocation]!]? = leg.listOfLocationLists;
+                
+                if (listOfLocations == nil || listOfLocations!.count == 0) {
+                    continue;
+                }
+                for locations in listOfLocations! {
+                if (locations.count > 1) {
                     
                     var coordinates : [CLLocationCoordinate2D] = [];
                     
-                    for location in locations! {
+                    for location in locations {
                         coordinates.append(location.coordinate);
+                        
+                        
                     }
                     
                     let polyline = MKPolyline(coordinates: &coordinates, count: coordinates.count)
                     polyline.title = leg.entryType;
                     mapKitView?.addOverlay(polyline)
-                   
+                    
+                    if (boundMapRect == nil) {
+                        boundMapRect = polyline.boundingMapRect;
+                    } else {
+                        boundMapRect = MKMapRectUnion(boundMapRect!,polyline.boundingMapRect);
+                    }
                     
                     if (isFirst) {
                         
@@ -70,29 +89,31 @@ public class MapViewController : UIViewController, MKMapViewDelegate {
                         mapKitView?.addAnnotation(mkAnnotation)
                         
                         mapKitView?.centerCoordinate = mkAnnotation.coordinate;
-                        var region = mapKitView?.region;
                         
-                        region!.center = coordinates[0];
-                        
-                        region!.span.longitudeDelta = 0.00544927536
-                        region!.span.latitudeDelta = 0.00544927536
-                        mapKitView?.region = region!;
 
                         isFirst = false;
                     }
                  
                     if (index == 0) {
                         // then this is the last leg ...
-                        let mkAnnotation : MKPointAnnotation = MKPointAnnotation();
+                        lastAnnotation = MKPointAnnotation();
                         
-                        mkAnnotation.coordinate = coordinates[coordinates.count-1];
-                        mkAnnotation.title = "End";
-                        mapKitView?.addAnnotation(mkAnnotation)
+                        lastAnnotation!.coordinate = coordinates[coordinates.count-1];
+                        lastAnnotation!.title = "End";
                         
                     }
                 }
+                }
                 
             }
+        }
+        if (lastAnnotation != nil) {
+            mapKitView?.addAnnotation(lastAnnotation!)
+        }
+        
+        if (boundMapRect != nil) {
+            
+            mapKitView?.setVisibleMapRect(boundMapRect!, edgePadding: UIEdgeInsetsMake(10.0, 10.0, 10.0, 10.0),  animated: true);
         }
 
     }
