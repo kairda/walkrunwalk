@@ -59,7 +59,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet var tableView : UITableView!;
     
     var locationManager: CLLocationManager!
-    var locationAtLastToggle : CLLocation?
     var currentLocation : CLLocation?
     
     required init?(coder aDecoder: NSCoder) {
@@ -284,6 +283,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         timer?.invalidate();
         timer = nil;
         locationManager.stopUpdatingLocation();
+        currentLocation = nil;
+
     }
     
     func continueTimer() {
@@ -355,7 +356,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             currentLeg?.entryType = "Walk";
         }
         
-        locationAtLastToggle = currentLocation;
 
     }
     
