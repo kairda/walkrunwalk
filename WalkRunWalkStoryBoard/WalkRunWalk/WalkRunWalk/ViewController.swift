@@ -461,19 +461,5 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
-//    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
-//        
-//        
-//        var location:CLLocation = locations[locations.count-1] as CLLocation
-//        
-//        print("locations = \(locations)")
-//        txtLatitude.text = "\(location.coordinate.latitude)";
-//        txtLongitude.text = "\(location.coordinate.longitude)";
-//    }
-//    
-//    func locationManager(manager: CLLocationManager!, didFailWithError error: NSError!) {
-//        println(error)
-//        txtLatitude.text = "Can't get your location!"
-//    }
 }
 
